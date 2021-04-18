@@ -3,6 +3,8 @@ import pycurl
 from html.parser import HTMLParser
 from io import BytesIO 
 
+HOST = 'https://www.reuters.com'
+
 class MyHTMLParser(HTMLParser):
     def __init__(self):
         super().__init__()
@@ -39,7 +41,8 @@ def parseCommonInfo(html):
     parser.feed(html)
     rawJson = parser.release()['data_json']
     parsedJson = json.loads(rawJson)
-    return parsedJson
+    info = parsedJson["props"]["initialState"]["markets"]["profile"]
+    return info
 
 def parseFinancialTable(html):  
     parser = MyHTMLParser()
@@ -49,12 +52,13 @@ def parseFinancialTable(html):
     tables = parsedJson["props"]["initialState"]["markets"]["financials"]["financial_tables"]
     return tables
 
-host = 'https://www.reuters.com'
-company = '1398.HK'
+def getData(company):
+    fin = HOST + '/companies/' + company + '/financials/'
+    prof = HOST + '/companies/' + company + '/profile'
+    htmlProf = getRawHTML(prof)
+    htmlFin = getRawHTML(fin)
 
-fin = host + '/companies/' + company + '/financials/'
-prof = host + '/companies/' + company + '/profile'
+    infoData = parseCommonInfo(htmlProf)
+    finData = parseFinancialTable(htmlFin)
 
-html = getRawHTML(prof)
-print(parseCommonInfo(html))
-#print(parseFinancialTable(html))
+    return infoData, finData
