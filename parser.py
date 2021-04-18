@@ -1,16 +1,28 @@
+import json
 import pycurl
 from html.parser import HTMLParser
 from io import BytesIO 
 
 class MyHTMLParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.catched = dict()
+        self.catchNow = (False, '')
+
     def handle_starttag(self, tag, attrs):
-        print("Encountered a start tag:", tag, attrs)
+        for attr in attrs:
+            if attr[0] == 'id' and attr[1] == '__NEXT_DATA__':
+                self.catchNow = (True, 'data_json')
 
     def handle_endtag(self, tag):
-        print("Encountered an end tag :", tag)
-
+        pass
     def handle_data(self, data):
-        print("Encountered some data  :", data)
+        if self.catchNow[0]:
+            self.catched[self.catchNow[1]] = data
+            self.catchNow = (False, '')
+    
+    def release(self):
+        return self.catched
 
 def getRawHTML(url):
     b_obj = BytesIO() 
@@ -22,6 +34,27 @@ def getRawHTML(url):
     get_body = b_obj.getvalue()
     return get_body.decode("utf8")
 
-html = getRawHTML('https://wiki.python.org/moin/BeginnersGuide')
-parser = MyHTMLParser()
-parser.feed(html)
+def parseCommonInfo(html):
+    parser = MyHTMLParser()
+    parser.feed(html)
+    rawJson = parser.release()['data_json']
+    parsedJson = json.loads(rawJson)
+    return parsedJson
+
+def parseFinancialTable(html):  
+    parser = MyHTMLParser()
+    parser.feed(html)
+    rawJson = parser.release()['data_json']
+    parsedJson = json.loads(rawJson)
+    tables = parsedJson["props"]["initialState"]["markets"]["financials"]["financial_tables"]
+    return tables
+
+host = 'https://www.reuters.com'
+company = '1398.HK'
+
+fin = host + '/companies/' + company + '/financials/'
+prof = host + '/companies/' + company + '/profile'
+
+html = getRawHTML(prof)
+print(parseCommonInfo(html))
+#print(parseFinancialTable(html))
