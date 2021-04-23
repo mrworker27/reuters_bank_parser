@@ -13,7 +13,7 @@ def logToFile(dataDir, company, idx):
         return False
     
     try:
-        compDir = dataDir + "/" + company + "_" + str(idx)
+        compDir = dataDir + "/" + company
         os.mkdir(compDir)
         
         f = open(compDir + "/profile.json", "w")
