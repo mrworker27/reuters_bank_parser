@@ -4,7 +4,7 @@ from lib import getLogger
 
 import pandas as pd
 
-lg = getLogger(logging.DEBUG)
+lg = getLogger(logging.INFO)
 
 def getFinJson(dirName):
     f = open(dirName + "/finance.json", "r")
@@ -80,6 +80,7 @@ def getResult(mapping):
             if rejected:
                 continue
             
+            lg.info("Company is a bank")
             resList = {}
             for inc in income[0]["rows"]:
                 if inc["name"] not in incSet:
@@ -98,7 +99,7 @@ def getResult(mapping):
                         name = inc["name"]
 
                     resList[year][name] = float(data["value"])
-                    lg.info((name, resList[year][name]))
+                    lg.debug((name, resList[year][name]))
 
             for bal in balance[0]["rows"]:
                 if bal["name"] not in balSet:
@@ -118,10 +119,9 @@ def getResult(mapping):
                     else:
                         name = bal["name"]
                     resList[year][name] = float(data["value"])
-                    lg.info((name, resList[year][name]))
+                    lg.debug((name, resList[year][name]))
         
             for x in resList:
-                lg.info((x, resList[x]))
                 result.append(resList[x])
                 
         
@@ -138,8 +138,4 @@ def getResult(mapping):
             r["short_name"] = r["dir"].split("/")[-1]
             del r["dir"]
             frame = frame.append(r, ignore_index = True)
-        print(frame)
-mapping = {
-    "",
-}
-getResult(mapping)
+        return frame

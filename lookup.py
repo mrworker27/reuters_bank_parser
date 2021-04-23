@@ -1,5 +1,8 @@
-import os, shutil, json
+import os, shutil, json, logging
 import parser
+from lib import getLogger
+
+lg = getLogger(logging.INFO)
 
 root = os.getcwd()
 
@@ -8,8 +11,8 @@ def logToFile(dataDir, company, idx):
     try:    
         infoData, finData = parser.getData(company)
     except:
-        print("Parsing error")
-        print("Fuckup %s #%d" % (company, idx))
+        lg.warning("Parsing error")
+        lg.warning("Fuckup %s #%d" % (company, idx))
         return False
     
     try:
@@ -25,26 +28,28 @@ def logToFile(dataDir, company, idx):
         f.close()
 
     except OSError:
-        print("Creation of the directory %s failed" % compDir)
-        print("Fuckup %s #%d" % (company, idx))
+        lg.warning("Creation of the directory %s failed" % compDir)
+        lg.warning("Fuckup %s #%d" % (company, idx))
         return False
     
-    print("OK %s #%d" % (company, idx))
+    lg.info("PARSED OK %s #%d" % (company, idx))
     return True
 
-try:
-    dataDir = root + "/data"
-
+def saveFiles(companies):
+    lg.info("Parsing companies to files")
     try:
-        shutil.rmtree(dataDir)
-    except OSError:
-        print("Cannot delete the directory %s" % dataDir)
-    
-    os.mkdir(dataDir)
-    companies = ['1398.HK', 'SBER.MM', 'AAPL.OQ', 'fucku']
-    
-    for i, company in enumerate(companies):
-        logToFile(dataDir, company, i)
+        dataDir = root + "/data"
 
-except OSError:
-    print("Creation of the directory %s failed" % dataDir)
+        try:
+            shutil.rmtree(dataDir)
+        except OSError:
+            lg.warning("Cannot delete the directory %s" % dataDir)
+        
+        os.mkdir(dataDir)
+        companies = ['1398.HK', 'SBER.MM', 'AAPL.OQ', 'fucku']
+        
+        for i, company in enumerate(companies):
+            logToFile(dataDir, company, i)
+
+    except OSError:
+        lg.warning("Creation of the directory %s failed" % dataDir)
