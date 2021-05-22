@@ -30,6 +30,7 @@ def getRawHTML(url):
     b_obj = BytesIO() 
     crl = pycurl.Curl() 
     crl.setopt(crl.URL, url)
+    crl.setopt(pycurl.TIMEOUT, 30)
     crl.setopt(crl.WRITEDATA, b_obj)
     crl.perform() 
     crl.close()
@@ -52,6 +53,14 @@ def parseFinancialTable(html):
     tables = parsedJson["props"]["initialState"]["markets"]["financials"]["financial_tables"]
     return tables
 
+def parseJson(html):  
+    parser = MyHTMLParser()
+    parser.feed(html)
+    rawJson = parser.release()['data_json']
+    parsedJson = json.loads(rawJson)
+    return parsedJson
+
+
 def getData(company):
     fin = HOST + '/companies/' + company + '/financials/'
     prof = HOST + '/companies/' + company + '/profile'
@@ -61,4 +70,4 @@ def getData(company):
     infoData = parseCommonInfo(htmlProf)
     finData = parseFinancialTable(htmlFin)
 
-    return infoData, finData
+    return infoData, finData, parseJson(htmlFin)
