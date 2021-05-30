@@ -89,7 +89,8 @@ def getResult(mapping):
                     if data == "--":
                         continue
                     year = data["date"].split("-")[0]
-                    resList[year] = {}
+                    if year not in resList:
+                        resList[year] = {}
                     resList[year]["dir"] = x
                     resList[year]["year"] = year
                     name = ""
@@ -110,7 +111,8 @@ def getResult(mapping):
                         continue
                     
                     year = data["date"].split("-")[0]
-                    resList[year] = {}
+                    if year not in resList:
+                        resList[year] = {}
                     resList[year]["dir"] = x
                     resList[year]["year"] = year
                     name = ""
@@ -127,15 +129,19 @@ def getResult(mapping):
         
         frame = pd.DataFrame()
         for r in result:
-            path = r["dir"]
-            profile = getProfJson(path)
-            currency = profile["keystats"]["revenue"]["currency"]
-            country = profile["about_info"]["country"]
-            name = profile["about_info"]["company_name"] 
-            r["currency"] = currency
-            r["country"] = country
-            r["bank_name"] = name
-            r["short_name"] = r["dir"].split("/")[-1]
-            del r["dir"]
-            frame = frame.append(r, ignore_index = True)
+            try:
+                path = r["dir"]
+                profile = getProfJson(path)
+                currency = profile["keystats"]["revenue"]["currency"]
+                country = profile["about_info"]["country"]
+                name = profile["about_info"]["company_name"] 
+                r["currency"] = currency
+                r["country"] = country
+                r["bank_name"] = name
+                r["short_name"] = r["dir"].split("/")[-1]
+                del r["dir"]
+                frame = frame.append(r, ignore_index = True)
+                lg.info(name + " is GOOD")
+            except:
+                lg.warning(name + " is BAD")
         return frame

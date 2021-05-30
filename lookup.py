@@ -9,7 +9,7 @@ root = os.getcwd()
 def logToFile(dataDir, company, idx):
     
     try:    
-        infoData, finData = parser.getData(company)
+        infoData, finData, whole = parser.getData(company)
     except:
         lg.warning("Parsing error")
         lg.warning("Fuckup %s #%d" % (company, idx))
@@ -26,7 +26,10 @@ def logToFile(dataDir, company, idx):
         f = open(compDir + "/finance.json", "w")
         f.write(json.dumps(finData))
         f.close()
-
+        
+        f = open(compDir + "/all.json", "w")
+        f.write(json.dumps(whole))
+        f.close()
     except OSError:
         lg.warning("Creation of the directory %s failed" % compDir)
         lg.warning("Fuckup %s #%d" % (company, idx))
@@ -46,7 +49,6 @@ def saveFiles(companies):
             lg.warning("Cannot delete the directory %s" % dataDir)
         
         os.mkdir(dataDir)
-        companies = ['1398.HK', 'SBER.MM', 'AAPL.OQ', 'fucku']
         
         for i, company in enumerate(companies):
             logToFile(dataDir, company, i)

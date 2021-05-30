@@ -103,7 +103,9 @@ else:
     f.close()
 
     tickers = json.loads(inp)
-    tickers = tickers[0:10]
+    
+    # tickers = tickers[0:10]
+    
     res = []
     for t in tickers:
         print(t)
